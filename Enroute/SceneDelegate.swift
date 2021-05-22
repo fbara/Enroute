@@ -23,7 +23,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         // Create the SwiftUI view and set the context as the value for the managedObjectContext environment keyPath.
         // Add `@Environment(\.managedObjectContext)` in the views that will need the context.
-        let contentView = FlightsEnrouteView(flightSearch: FlightSearch(destination: "KSFO"))
+        let airport = Airport.withICAO("KSFO", context: context)
+        let contentView = FlightsEnrouteView(flightSearch: FlightSearch(destination: airport))
             .environment(\.managedObjectContext, context)
 
         // Use a UIHostingController as window root view controller.
