@@ -48,3 +48,24 @@ extension Flight {
         return request
     }
 }
+
+extension Flight {
+    @discardableResult
+    static func update(from faflight: FAFlight, in context: NSManagedObjectContext) -> Flight {
+        let request = fetchRequst(NSPredicate(format: "ident_ = %@", faflight.ident))
+        let results = (try? context.fetch(request)) ?? []
+        let flight = results.first ?? Flight(context: context)
+        
+        flight.ident = faflight.ident
+        flight.origin = Airport.withICAO(faflight.origin, context: context)
+        flight.destination = Airport.withICAO(faflight.destination, context: context)
+        flight.arrival = faflight.arrival
+        flight.departure = faflight.departure
+        flight.filed = faflight.filed
+        flight.aircraft = faflight.aircraft
+        flight.airline = Airline.withCode(faflight.airlineCode, in: context)
+        flight.objectWillChange.send()
+        
+        return flight
+    }
+}

@@ -81,3 +81,26 @@ extension Airport {
         return request
     }
 }
+
+extension Airport {
+    func fetchIncomingFlights() {
+        Self.flightAwareRequest?.stopFetching()
+        if let context = managedObjectContext {
+            Self.flightAwareRequest = EnrouteRequest.create(airport: icao, howMany: 120)
+            Self.flightAwareRequest?.fetch(andRepeatEvery: 10)
+            Self.flightAwareResultsCancellable = Self.flightAwareRequest?.results.sink { results in
+                for faflight in results {
+                    Flight.update(from: faflight, in: context)
+                }
+                do {
+                    try context.save()
+                } catch(let error) {
+                    print("couldn't save flight update to CoreData: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
+    private static var flightAwareRequest: EnrouteRequest!
+    private static var flightAwareResultsCancellable: AnyCancellable?
+}
